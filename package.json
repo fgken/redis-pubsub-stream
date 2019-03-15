@@ -1,0 +1,22 @@
+{
+  "name": "redis-pubsub-stream",
+  "version": "1.0.0",
+  "description": "treat redis stream like pubsub",
+  "main": "redis-pubsub-stream.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fgken/redis-pubsub-stream.git"
+  },
+  "author": "fgken",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fgken/redis-pubsub-stream/issues"
+  },
+  "homepage": "https://github.com/fgken/redis-pubsub-stream#readme",
+  "devDependencies": {
+    "eslint": "^5.15.1"
+  }
+}
