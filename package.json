@@ -18,5 +18,8 @@
   "homepage": "https://github.com/fgken/redis-pubsub-stream#readme",
   "devDependencies": {
     "eslint": "^5.15.1"
+  },
+  "dependencies": {
+    "ioredis": "^4.6.2"
   }
 }
