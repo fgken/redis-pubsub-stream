@@ -9,6 +9,9 @@ class RedisPubSubStream {
       port: this.port
     });
     this.subs = {};
+    this.callbacks = {
+      onmessage: () => {},
+    };
   }
 
   sleep(ms) {
@@ -17,13 +20,11 @@ class RedisPubSubStream {
 
   async runReader(streamName) {
     let lastId = '0-0';
-    while (0 < this.subs[streamName].callbacks.length) {
+    while (this.subs[streamName]) {
       const result = await this.xread(streamName, lastId);
-      if (result.lastId !== lastId) {
+      if (this.subs[streamName] && result.lastId !== lastId) {
         lastId = result.lastId;
-        for (let callback of this.subs[streamName].callbacks) {
-          callback(streamName, result.result);
-        }
+        this.callbacks.onmessage(streamName, result.result);
       } else {
         await this.sleep(1000);
       }
@@ -31,18 +32,20 @@ class RedisPubSubStream {
     delete this.subs[streamName];
   }
 
-  subscribe(streamName, callback) {
-    if (streamName in this.subs) {
-      this.subs[streamName].callbacks.push(callback);
-    } else {
-      this.subs[streamName] = { callbacks: [callback] };
+  onmessage(callback) {
+    this.callbacks.onmessage = callback;
+  }
+
+  subscribe(streamName) {
+    if (!(streamName in this.subs)) {
+      this.subs[streamName] = true;
       this.runReader(streamName);
     }
   }
 
   async unsubscribe(streamName) {
     if (streamName in this.subs) {
-      this.subs[streamName].callbacks = [];
+      this.subs[streamName] = false;
     }
   }
 
@@ -50,7 +53,7 @@ class RedisPubSubStream {
     const result = {};
     let lastId = id;
     const ret = await this.client.sendCommand(
-      new Redis.Command('XREAD', ['COUNT', '100', 'BLOCK', '10000', 'STREAMS', streamName, id])
+      new Redis.Command('XREAD', ['COUNT', '1', 'BLOCK', '60000', 'STREAMS', streamName, id])
     )
     if (ret === null) {
       return { result, lastId };

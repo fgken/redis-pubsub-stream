@@ -8,7 +8,9 @@ const RedisPubSubStream = require('redis-pubsub-stream');
   result = await redis.xread('test', result.lastId);
   console.log(JSON.stringify(result.result, null, '  '));
 
-  redis.subscribe('test', (key, res) => {
+  redis.onmessage((key, res) => {
     console.log(key, res);
   });
+  redis.subscribe('test');
+  setTimeout(()=> redis.unsubscribe('test'), 10000);
 })();
